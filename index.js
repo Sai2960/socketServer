@@ -15,6 +15,7 @@ const io = new Server(server, {
     origin: process.env.NEXT_BASE_URL,
     methods: ["GET", "POST"],
   },
+  transports: ["websocket"],
 });
 
 io.on("connection", (socket) => {
