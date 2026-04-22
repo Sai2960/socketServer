@@ -34,17 +34,22 @@ io.on("connection", (socket) => {
     }
   });
 
+  // ✅ NEW: User joins their personal room
+  socket.on("join-user-room", (userId) => {
+    const room = `user_${userId}`;
+    socket.join(room);
+    console.log(`User ${userId} joined room: ${room}`);
+  });
+
   socket.on("update-location", async ({ userId, latitude, longitude }) => {
     const location = {
       type: "Point",
       coordinates: [longitude, latitude],
     };
-
     await axios.post(
       `${process.env.NEXT_BASE_URL}/api/socket/update-location`,
       { userId, location },
     );
-
     io.emit("update-deliveryBoy-location", { userId, location });
   });
 
@@ -70,9 +75,13 @@ io.on("connection", (socket) => {
   });
 });
 
+// ✅ UPDATED: Handle room-based emit
 app.post("/notify", (req, res) => {
-  const { event, data, socketId } = req.body;
-  if (socketId) {
+  const { event, data, socketId, room } = req.body;
+
+  if (room) {
+    io.to(room).emit(event, data);
+  } else if (socketId) {
     io.to(socketId).emit(event, data);
   } else {
     io.emit(event, data);
