@@ -34,7 +34,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ✅ NEW: User joins their personal room
   socket.on("join-user-room", (userId) => {
     const room = `user_${userId}`;
     socket.join(room);
@@ -75,7 +74,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// ✅ UPDATED: Handle room-based emit
 app.post("/notify", (req, res) => {
   const { event, data, socketId, room } = req.body;
 
@@ -88,6 +86,11 @@ app.post("/notify", (req, res) => {
   }
 
   return res.status(200).json({ success: true });
+});
+
+// ✅ Ping route to keep Render alive
+app.get("/ping", (req, res) => {
+  res.json({ status: "alive" });
 });
 
 server.listen(port, () => {
